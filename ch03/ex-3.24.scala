@@ -34,12 +34,24 @@ def zipWith[A, B, C](l1: List[A], l2: List[B])(f: (A, B) => C): List[C] =
 
 def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean = {
  
-  def go(l1: List[A], l2: List[A]): Boolean = 
+  // checks if the lists match, stopping at the first different element
+  def matchLists(l1: List[A], l2: List[A]): Boolean = 
     (l1, l2) match {
       case (_, Nil) => true
-      case (Cons(a, _), Cons(b, Nil)) => a == b
-      case (Cons(a, t1), Cons(b, t2)) => if (a == b) { if (go(t1, t2)) true else go(t1, l2) } else go(t1, t2)
+      case (Cons(v1, t1), Cons(v2, t2)) if v1 == v2 => matchLists(t1, t2)
+      case _ => false
     }
 
-  go(sup, sub)
+  // iterates over l1 until it finds a matching
+  def go(l1: List[A], l2: List[A]): Boolean = 
+    (l1, l2) match {
+      case (Nil, _) => false
+      case (Cons(_,_), _) if matchLists(l1, l2) => true
+      case (Cons(_, t), _) => go(t, l2)
+    }
+
+  (sup, sub) match {
+    case (_, Nil) => true
+    case (_, _) => go(sup, sub)
+  }
 }
